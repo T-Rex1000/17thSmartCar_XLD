@@ -1,0 +1,130 @@
+#include "headfile.h"
+
+char show_select=0;
+void logo(int X,int Y,int r,int time1,int time2,uint16 color)
+{
+    int i=0,a[2],b[2],c[2];
+    a[0]=X;a[1]=pow(r*r-(a[0]-X)*(a[0]-X),0.5)+Y;
+    b[0]=X+(pow(3,0.5)/2)*r;b[1]=(pow(3,0.5)/3)*(b[0]-X)+Y;
+    c[1]=Y+0.5*r;c[0]=-1*pow(r*r-(c[1]-Y)*(c[1]-Y),0.5)+X;
+
+    while(b[0]>X-r*pow(3,0.5)/2)//内环
+    {
+        if(time1-i>0)
+            i++;
+        if(a[0]<=X+0.5*r)
+        {
+            if(show_select)
+                ips200_drawpoint(a[0],a[1],color);
+            else
+                lcd_drawpoint(a[0],a[1],color);
+            a[0]++;
+            a[1]=-1*pow(r*r-(a[0]-X)*(a[0]-X),0.5)+Y;
+        }
+
+        if(a[0]>X+0.5*r&&a[1]<=Y+0.5*r)
+        {
+            if(show_select)
+               ips200_drawpoint(a[0],a[1],color);
+            else
+               lcd_drawpoint(a[0],a[1],color);
+            a[1]++;
+            a[0]=pow(r*r-(a[1]-Y)*(a[1]-Y),0.5)+X;
+        }
+        if(show_select)
+            ips200_drawpoint(b[0],b[1],color);
+        else
+            lcd_drawpoint(b[0],b[1],color);
+        b[0]--;
+        b[1]=pow(r*r-(b[0]-X)*(b[0]-X),0.5)+Y;
+        if(c[1]>=Y-0.5*r&&c[0]<=X-r*pow(3,0.5)/2)
+        {
+            if(show_select)
+               ips200_drawpoint(c[0],c[1],color);
+            else
+               lcd_drawpoint(c[0],c[1],color);
+            c[1]--;
+            c[0]=-1*pow(r*r-(c[1]-Y)*(c[1]-Y),0.5)+X;
+        }
+        if(c[1]<Y-0.5*r&&c[1]>=Y-r&&c[0]<=X)
+        {
+            if(show_select)
+               ips200_drawpoint(c[0],c[1],color);
+            else
+               lcd_drawpoint(c[0],c[1],color);
+            c[0]++;
+            c[1]=-1*pow(r*r-(c[0]-X)*(c[0]-X),0.5)+Y;
+        }
+
+        systick_delay_ms(STM0,time1-i);
+    }
+    i=0;
+    systick_delay_ms(STM0,time2*6);
+    while(a[1]<Y+r)//直线
+    {
+        if(time1-i>0)
+            i++;
+        if(show_select)
+        {
+            ips200_drawpoint(a[0],a[1],color);
+            ips200_drawpoint(b[0],b[1],color);
+            ips200_drawpoint(c[0],c[1],color);
+        }
+        else
+        {
+            lcd_drawpoint(a[0],a[1],color);
+            lcd_drawpoint(b[0],b[1],color);
+            lcd_drawpoint(c[0],c[1],color);
+        }
+
+        c[1]--;
+        a[0]++;
+        a[1]=(pow(3,0.5)/3)*(a[0]-X)+Y;
+        b[0]--;
+        b[1]=(-1*pow(3,0.5)/3)*(b[0]-X)+Y;
+
+        systick_delay_ms(STM0,time1-i);
+    }
+    i=0;
+    systick_delay_ms(STM0,time2);
+    while(a[0]>=X-2*r*pow(3,0.5)/2)//外环
+    {
+        if(time1-i>0)
+            i++;
+        if(a[0]>=X-r*pow(3,0.5)/2)
+            if(show_select)
+               ips200_drawpoint(a[0],a[1],color);
+            else
+                lcd_drawpoint(a[0],a[1],color);
+        if(b[1]>=Y-2*r*pow(3,0.5)/2)
+            if(show_select)
+                ips200_drawpoint(b[0],b[1],color);
+            else
+                lcd_drawpoint(b[0],b[1],color);
+        if(c[0]<=X+r)
+        {
+            if(show_select)
+                ips200_drawpoint(c[0],c[1],color);
+            else
+                lcd_drawpoint(c[0],c[1],color);
+            c[0]++;
+            c[1]=-1*pow(4*r*r-(c[0]-X)*(c[0]-X),0.5)+Y;
+        }
+        if(c[0]>X+r&&c[1]<=Y)
+        {
+            if(show_select)
+                ips200_drawpoint(c[0],c[1],color);
+            else
+                lcd_drawpoint(c[0],c[1],color);
+            c[1]++;
+            c[0]=pow(4*r*r-(c[1]-Y)*(c[1]-Y),0.5)+X;
+        }
+        a[0]--;
+        a[1]=(pow(4*r*r-(a[0]-X)*(a[0]-X),0.5)+Y);
+        b[1]--;
+        b[0]=-1*pow(4*r*r-(b[1]-Y)*(b[1]-Y),0.5)+X;
+
+        systick_delay_ms(STM0,time1-i);
+    }
+
+}

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete 4 resources" deleteContents="false" description="Delete 4 resources" element1="/UART_Demo/CODE/nosaydie_dircontrol.c" element2="/UART_Demo/CODE/nosaydie_dircontrol.h" element3="/UART_Demo/CODE/nosaydie_pidcontrol.c" element4="/UART_Demo/CODE/nosaydie_pidcontrol.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="4" stamp="1657892811438"/>&#x0A;<refactoring comment="Delete 2 resources" deleteContents="false" description="Delete 2 resources" element1="/UART_Demo/CODE/OSG_PID.c" element2="/UART_Demo/CODE/OSG_PID.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="2" stamp="1657894531189"/>
+</session>

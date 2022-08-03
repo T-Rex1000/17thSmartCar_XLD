@@ -1,0 +1,12 @@
+Aurix Flasher 2.2.1.0, built on 2020/10/2 15:20:38
+Given Command Lines Parameters: 
+    Arg[0-1] = [-hex uart_demo.hex]
+DAS init done
+::Creating Flash Memory Model for TRICORE: TC26x B step
+::HEX file parsing .......... (Done)
+::Checking address map .......... (Done)
+::Flash memory erase .......... (Done)
+::Flash memory program .......... (Done)
+Overall time: 2380 ms
+AurixFlasher Exit Status: pass
+Flashing was successfull

@@ -1,0 +1,197 @@
+#include "headfile.h"
+#include "LOGO.h"
+//#include "control_line.h"
+#pragma section all "cpu1_dsram"
+
+//#define IPS200
+#define TFT18
+
+uint8 LCC[6][16]={
+        {0x00,0x00,0x00,0x40,0x60,0x80,0x37,0xFE,0x11,0x00,0x01,0x20,0x02,0x20,0x73,0xFC},
+        {0x10,0x20,0x10,0x20,0x17,0xFE,0x10,0x20,0x10,0x20,0x38,0x20,0x47,0xFE,0x00,0x00},/*"连",0*/
+
+        {0x00,0x00,0x18,0x20,0x18,0x20,0x18,0x20,0x18,0x20,0x7F,0x26,0x59,0x26,0x59,0x26},
+        {0x51,0x26,0x11,0x26,0x19,0x26,0x1D,0x26,0x37,0x26,0x21,0x7E,0x61,0xC6,0x00,0x06},/*"灿",1*/
+
+        {0x00,0x00,0x30,0x28,0x30,0x24,0x30,0x28,0x33,0xFE,0x7A,0x20,0x32,0x24,0x33,0xE4},
+        {0x32,0xF4,0x32,0x94,0x32,0x98,0x3E,0x98,0x45,0x9A,0x0D,0x3E,0x18,0xE6,0x00,0x00},/*"城",2*/
+};
+
+#ifdef IPS200
+void show_init()
+{
+    show_select=1;
+    ips200_init();
+    ips200_clear(0x0002);
+    logo(120,70,20,35,35,BLUE);
+    IPS200_BGCOLOR=BLACK;
+    IPS200_PENCOLOR=BLUE;
+    ips200_showstr(75,8,"made by LCC");
+    systick_delay_ms(STM0,3000);
+    //小logo
+    logo(215,30,10,0,0,BLUE);
+}
+//int X=MT9V03X_W>IPS200_X_MAX?IPS200_X_MAX:MT9V03X_W,Y=MT9V03X_H>IPS200_Y_MAX?IPS200_Y_MAX:MT9V03X_H;
+int MT9V03X_image(int x,int y)
+{
+    int coord_x = MT9V03X_W>IPS200_X_MAX?IPS200_X_MAX:MT9V03X_W;
+    int coord_y = MT9V03X_H>IPS200_Y_MAX?IPS200_Y_MAX:MT9V03X_H;
+    int point = y*MT9V03X_W+x*MT9V03X_W/coord_x;
+    return *(mt9v03x_image[0]+point);
+}
+_Bool MT9V03X_01(int x,int y)
+{
+    int coord_x = MT9V03X_W>IPS200_X_MAX?IPS200_X_MAX:MT9V03X_W;
+    int coord_y = MT9V03X_H>IPS200_Y_MAX?IPS200_Y_MAX:MT9V03X_H;
+    int point = y*MT9V03X_W+x*MT9V03X_W/coord_x;
+    return *(mt9v03x_image[0]+point)>=gray;
+}
+#endif
+
+#ifdef TFT18
+void show_init()
+{
+    show_select=0;
+    lcd_init();
+    lcd_clear(0);
+    logo(64,30,10,28,35,BLUE);
+    TFT_PENCOLOR=BLUE;
+    TFT_BGCOLOR=BLACK;
+    lcd_showstr(20,4,"made by LCC");
+    //systick_delay_ms(STM0,3000);
+    //小logo
+    logo(110,15,4,0,0,BLUE);
+    lcd_display_chinese(102,33,16,LCC[0],1,WHITE,10);
+}
+
+int MT9V03X_image(int x,int y)
+{
+    int coord_x = MT9V03X_W;
+    int coord_y = MT9V03X_H>TFT_Y_MAX?TFT_Y_MAX:MT9V03X_H;
+    int point = y*MT9V03X_W+x*MT9V03X_W/coord_x;
+    return *(mt9v03x_image[0]+point);
+}
+_Bool MT9V03X_01(int x,int y)
+{
+    int coord_x = MT9V03X_W;
+    int coord_y = MT9V03X_H>TFT_Y_MAX?TFT_Y_MAX:MT9V03X_H;
+    int point = y*MT9V03X_W+x*MT9V03X_W/coord_x;
+    return *(mt9v03x_image[0]+point)>=gray;
+}
+#endif
+/*
+uint32 i=0,time=0;
+void TrigInit()//???????
+{
+    gpio_set(P14_0,0);
+    gpio_set(P14_0,1);
+    systick_delay_us(STM1,10);
+    gpio_set(P14_0,0);
+    gpio_toggle(P20_8);
+}
+void Bc_Dis()
+{
+    TrigInit();
+    i=systick_getval_us(STM1);
+    while(gpio_get(P14_1)==1);
+    i=systick_getval_us(STM1)-i;
+}
+*/
+
+
+
+
+void core1_main(void)
+{
+	disableInterrupts();
+    IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
+
+
+    IfxCpu_emitEvent(&g_cpuSyncEvent);
+
+    IfxCpu_waitEvent(&g_cpuSyncEvent, 0xFFFF);
+
+    enableInterrupts();
+
+    time=0;
+    while (TRUE)
+    {
+        if(mt9v03x_finish_flag)
+        {
+#ifdef IPS200
+            ips200_displayimage032(mt9v03x_image[0],MT9V03X_W,MT9V03X_H);
+            ips200_showuint8(15,15,MT9V03X_image(MT9V03X_W/2,15));
+            ips200_showuint16(60,10,duty);
+            ips200_showint8(20,10,gray);
+            ips200_showint16(10,12,speed1);
+            ips200_showint16(80,12,speed2);
+#endif
+#ifdef TFT18
+            toral_control();
+            lcd_displayimage032(imagezip[0],94,60);
+
+
+            lcd_showuint16(10,5,duty);
+            //lcd_showint16(0,7,speed1);
+            //lcd_showint16(79,7,speed2);
+            lcd_showstr(0,8,contemp);
+            //lcd_showfloat(0,5,k,2,3);
+            //lcd_showuint16(80,6,v);
+            //lcd_showint32(0,6,time,9);
+            lcd_showstr(70,8,"       ");
+            switch(select)
+            {
+                case 1:
+                {
+                    TFT_PENCOLOR=BLACK;
+                    TFT_BGCOLOR=BLUE;
+                    lcd_showstr(70,8,"V:");
+                    lcd_showint32(83,8,v,4);
+                    break;
+                }
+                case 2:
+                {
+                    TFT_PENCOLOR=BLACK;
+                    TFT_BGCOLOR=BLUE;
+                    lcd_showstr(70,8,"D:");
+                    lcd_showfloat(83,8,duty_k,2,1);
+                    break;
+                }
+                case 3:
+                {
+                    TFT_PENCOLOR=BLACK;
+                    TFT_BGCOLOR=BLUE;
+                    lcd_showstr(70,8,"T:");
+                    lcd_showint32(83,8,threshold,3);
+                    break;
+                }
+                case 4:
+                {
+                    TFT_PENCOLOR=BLACK;
+                    TFT_BGCOLOR=BLUE;
+                    lcd_showstr(70,8,"P:");
+                    lcd_showint32(83,8,pre,2);
+                    break;
+                }
+                case 5:
+                {
+                    TFT_PENCOLOR=BLACK;
+                    TFT_BGCOLOR=BLUE;
+                    lcd_showstr(70,8,"B:");
+                    lcd_showint32(83,8,pre,2);
+                    break;
+                }
+            }
+
+#endif
+            mt9v03x_finish_flag=0;
+            time++;
+        }
+    }
+}
+
+
+
+
+
+#pragma section all restore

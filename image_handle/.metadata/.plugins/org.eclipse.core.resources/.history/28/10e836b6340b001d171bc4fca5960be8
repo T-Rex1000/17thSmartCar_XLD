@@ -1,0 +1,27 @@
+#ifndef CODE_IMAGE_HANDLE_H_
+#define CODE_IMAGE_HANDLE_H_
+#include "headfile.h"
+
+void resetmark_road();
+void image_zip();
+void threshold_judge(int x,int y,int range);
+void sew_line(int x0,int y0,int x1,int y1);
+void find_line();
+void cen_line(char dir);
+void cross();
+void element_handle();
+void toral_control();
+
+extern int leftline[60],cenline[60],rightline[60];
+extern float k;
+extern int threshold;
+extern volatile uint8 pre,back;
+extern volatile uint8 judge_width;
+
+extern int type_Y,type_F;
+
+extern volatile uint8 C0;
+extern volatile uint8 C1;
+
+
+#endif
